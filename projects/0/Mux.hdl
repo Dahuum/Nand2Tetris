@@ -1,9 +1,0 @@
-CHIP AndMuxOr {
-  IN a, b, sel;
-  OUT out;
-
-  PARTS:
-  And (a=a, b=b, out=andout);
-  Or  (a=a, b=b, out=orout);
-  Mux (a=andout, b=orout, sel=sel, out=out);
-}
