@@ -1,4 +1,4 @@
-```ts
+```ts 
 let nand2tetris = {
     project: "Nand2Tetris",
     description: "Building a computer from NAND gates",
