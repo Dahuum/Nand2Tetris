@@ -18,5 +18,12 @@ CHIP Computer {
     IN reset;
 
     PARTS:
-    //// Replace this comment with your code.
+	/* 1. ROM - Program Memory (stores instructions) */
+	ROM32K(address=pc, out=instruction);
+
+	/* 2. RAM - Data Memory (stores data/variables) */ 
+	Memory(in=outM, load=writeM, address=addressM, out=inM);
+
+	/* 3. CPU - The processor that executes everything */ 
+	CPU(inM=inM, instruction=instruction, reset=reset, outM=outM, writeM=writeM, addressM=addressM, pc=pc);
 }

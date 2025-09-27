@@ -20,17 +20,66 @@
  */
 CHIP CPU {
 
-    IN  inM[16],         // M value input  (M = contents of RAM[A])
-        instruction[16], // Instruction for execution
-        reset;           // Signals whether to re-start the current
-                         // program (reset==1) or continue executing
-                         // the current program (reset==0).
+    IN  inM[16],         /* value input  (M = contents of RAM[A]) */
+        instruction[16], /* Instruction for execution */
+        reset;           /* Signals whether to re-start the current */
+                         /* program (reset==1) or continue executing */
+                         /* the current program (reset==0). */
 
-    OUT outM[16],        // M value output
-        writeM,          // Write to M? 
-        addressM[15],    // Address in data memory (of M)
-        pc[15];          // address of next instruction
+    OUT outM[16],        /* M value output */
+        writeM,          /* Write to M? */
+        addressM[15],    /* Address in data memory (of M) */
+        pc[15];          /* address of next instruction */
 
     PARTS:
-	//// Replace this comment with your code.
+	/* 1. INSTRUCTION DECODING */
+    Not(in=instruction[15], out=isA);
+    Not(in=isA, out=isC);
+    
+    /* 2. A REGISTER CONTROL */
+    Mux16(a=instruction, b=aluOut, sel=isC, out=aRegIn);
+    Or(a=isA, b=writeA, out=loadA);
+    And(a=isC, b=instruction[5], out=writeA);
+    ARegister(in=aRegIn, load=loadA, out=aRegOut);
+    
+    /* 3. D REGISTER CONTROL */  
+    And(a=isC, b=instruction[4], out=loadD);
+    DRegister(in=aluOut, load=loadD, out=dRegOut);
+    
+    /* 4. ALU SETUP */
+    Mux16(a=aRegOut, b=inM, sel=instruction[12], out=aluY);
+    ALU(x=dRegOut, y=aluY,
+        zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8],
+        f=instruction[7], no=instruction[6],
+        out=aluOut, zr=zr, ng=ng);
+    
+    /* 5. MEMORY OUTPUT CONTROL */
+    And(a=isC, b=instruction[3], out=writeM);
+    And16(a=aluOut, b=aluOut, out=outM);
+    And16(a=aRegOut, b=aRegOut, out[0..14]=addressM);
+    
+    /* 6. JUMP LOGIC IMPLEMENTATION */
+    // Extract jump bits
+    And(a=isC, b=instruction[2], out=j1);  /* jump if negative */
+    And(a=isC, b=instruction[1], out=j2);  /* jump if zero */
+    And(a=isC, b=instruction[0], out=j3);  /* jump if positive */
+    
+    /* Determine ALU output condition */
+    Not(in=zr, out=notZero);
+    Not(in=ng, out=notNeg);
+    And(a=notZero, b=notNeg, out=isPos);  /* positive = not zero AND not negative */
+    
+    /* Check each jump condition */
+    And(a=j1, b=ng, out=jumpNeg);     /* JLT: jump if negative */
+    And(a=j2, b=zr, out=jumpZero);    /* JEQ: jump if zero */
+    And(a=j3, b=isPos, out=jumpPos);  /* JGT: jump if positive */
+    
+    /* Combine all jump conditions */
+    Or(a=jumpNeg, b=jumpZero, out=jumpNegOrZero);
+    Or(a=jumpNegOrZero, b=jumpPos, out=jump);
+    
+    /* 7. PROGRAM COUNTER */
+    PC(in=aRegOut, load=jump, inc=true, reset=reset, out[0..14]=pc);
+	
 }
