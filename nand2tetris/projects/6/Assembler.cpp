@@ -78,18 +78,18 @@ vector<string> Assembler::split(const string& s, const string& delimiters) {
  * */
 string Assembler::cInstructionToBinary(string s) {
 	vector<string> tokens = split(s, "=;");
-	string binary;
+	string binary, empty = "";
 
 	for (auto &tok : tokens)
     	std::transform(tok.begin(), tok.end(), tok.begin(), ::toupper);
 
 
 	if (tokens.size() == 1) {
-			binary = compMap[tokens[0]] + destMap[""] + jumpMap[""];
+			binary = compMap[tokens[0]] + destMap[empty] + jumpMap[empty];
 			return "111" + binary;
 	} else if (tokens.size() == 2) {
-		if (tokens[1][0] == 'J') binary = compMap[tokens[0]] + destMap[""] + jumpMap[tokens[1]];
-		else binary = compMap[tokens[0]] + destMap[tokens[1]] + jumpMap[""];
+		if (tokens[1][0] == 'J') binary = compMap[tokens[0]] + destMap[empty] + jumpMap[tokens[1]];
+		else binary = compMap[tokens[1]] + destMap[tokens[0]] + jumpMap[empty];
 		cout << "binary case check: " << binary << endl;
 		return "111" + binary;
 	} else {

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
+#include <bitset>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;

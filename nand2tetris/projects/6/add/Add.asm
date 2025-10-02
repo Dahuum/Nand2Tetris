@@ -7,6 +7,7 @@
 
 (RANDOM_LABEL)
 //@2
+D=D+A
 D=A      // hahahah wesh
 //@3
 D=D+A
