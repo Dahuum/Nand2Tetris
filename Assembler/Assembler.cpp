@@ -15,11 +15,9 @@ void Assembler::assemble(string inFile, string outFile) {
 		inputFile.clear(); inputFile.seekg(0);
 		PassTwo(inputFile, outputFile, line);
 
-		Assembler::printMap();
-		/* Test scop */
-		aInstructionToBinary("@16");
-		/* End */
+		//Assembler::printMap();
 		inputFile.close();
+		outputFile.close();
 	} 
 	else cerr << "Error in opening file." << endl;
 }
@@ -46,11 +44,9 @@ void Assembler::PassOne(ifstream& inputFile, string& line, int& romAddress)  {
 		if (cleanedLine == "") continue;
 		else if (Assembler::isLabel(cleanedLine)) {
 			string label = Assembler::extractLabel(cleanedLine);
-			cout << "label: " << label << endl;
 			Assembler::symbolTable[label] = romAddress;
 		}
 		else romAddress++;
-		cout << "'" << cleanedLine << "'" << ",   " << "romAddress: " << romAddress << endl;
 	}
 }
 
@@ -90,7 +86,6 @@ string Assembler::cInstructionToBinary(string s) {
 	} else if (tokens.size() == 2) {
 		if (tokens[1][0] == 'J') binary = compMap[tokens[0]] + destMap[empty] + jumpMap[tokens[1]];
 		else binary = compMap[tokens[1]] + destMap[tokens[0]] + jumpMap[empty];
-		cout << "binary case check: " << binary << endl;
 		return "111" + binary;
 	} else {
 		return "111" + compMap[tokens[0]] + destMap[tokens[1]] + jumpMap[tokens[2]];
@@ -106,7 +101,6 @@ string Assembler::aInstructionToBinary(string value) {
 	if (*p) {
 		if (symbolTable.find(value) == symbolTable.end()) symbolTable[value] = nextRamAddress++;
 		
-		cout << "NextRamAddress: " << symbolTable[value] << endl;
 		string binary = bitset<15>(symbolTable[value]).to_string();
 		return "0" + binary;
 	}
