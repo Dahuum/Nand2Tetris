@@ -1,0 +1,3 @@
+[submodule "Assembler"]
+	path = Assembler
+	url = https://github.com/Dahuum/hack-assembler.git
